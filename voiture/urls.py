@@ -1,28 +1,15 @@
-"""
-URL configuration for voiture project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
 from django.urls import path, include
 
 from rest_framework import routers
 from venteVoiture.views import (
-    UserListView, UserDetailView, ListCreateAPIView, RetrieveUpdateDestroyAPIView,GarageDetailView,GarageListView,VehicleListView,VehicleDetailView,
-    OrderListView, OrderDetailView,ItemDetailView, ItemListView,CartDetailView, CartListView,LocationDetailView, LocationListView,
-    CategoryPiecesDetailView,CategoryPiecesListView, VehicleCategoryDetailView, VehicleCategoryListView, DetailCartDetailView, DetailCartListView,
-    DetailOrderDetailView, DetailOrderListView)
+    ListCreateAPIView, RetrieveUpdateDestroyAPIView, GarageDetailView, GarageListView,
+    VehicleListView, VehicleDetailView,
+    OrderListView, OrderDetailView, ItemDetailView,get_user_order,get_vehicle_count,update_order_motif,get_pending_orders,get_completed_orders,get_rejected_orders, ItemListView, mark_payment_complete,create_user, get_user_vehicles, CartDetailView, CartListView, login_view,
+
+    CategoryPiecesDetailView, CategoryPiecesListView, VehicleCategoryDetailView, VehicleCategoryListView,
+    DetailCartDetailView, DetailCartListView, UserListView, OrderCreateView,
+    DetailOrderDetailView, DetailOrderListView, VehicleCountView)
 
 
 urlpatterns = [
@@ -30,10 +17,10 @@ urlpatterns = [
 
     # URLs pour les utilisateurs
     path('api/userAll/', UserListView.as_view(), name='user-list-all'),
-    path('api/postUser/', UserListView.as_view(), name='user-post'),
-    path('api/user/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
-    path('api/deleteUser/<int:pk>/', UserDetailView.as_view(), name='delete-user'),
-    path('api/updateUser/<int:pk>/', UserDetailView.as_view(), name='update-user'),
+     path('api/postUser/', create_user, name='user-post'),
+    # path('api/user/<int:pk>/', UserDetailView.as_view(), name='user-detail'),
+    # path('api/deleteUser/<int:pk>/', UserDetailView.as_view(), name='delete-user'),
+    # path('api/updateUser/<int:pk>/', UserDetailView.as_view(), name='update-user'),
 
     # URLs pour les garages
     path('api/garageAll/', GarageListView.as_view(), name='garage-list-all'),
@@ -48,13 +35,21 @@ urlpatterns = [
     path('api/vehicle/<int:pk>/', VehicleDetailView.as_view(), name='vehicle-detail'),
     path('api/deleteVehicle/<int:pk>/', VehicleDetailView.as_view(), name='delete-vehicle'),
     path('api/updateVehicle/<int:pk>/', VehicleDetailView.as_view(), name='update-vehicle'),
+    path('api/vehicleCount/', get_vehicle_count, name='vehicle-count'),
+    path('api/vehicleOfUser/', get_user_vehicles, name='get_user_vehicles'),
 
     # URLs pour les commandes
     path('api/orderAll/', OrderListView.as_view(), name='order-list-all'),
-    path('api/postOrder/', OrderListView.as_view(), name='order-post'),
+    path('api/postOrder/', OrderCreateView.as_view(), name='order-post'),
     path('api/order/<int:pk>/', OrderDetailView.as_view(), name='order-detail'),
     path('api/deleteOrder/<int:pk>/', OrderDetailView.as_view(), name='delete-order'),
-    path('api/updateOrder/<int:pk>/', OrderDetailView.as_view(), name='update-order'),
+    path('api/updateOrder/<int:pk>', OrderDetailView.as_view(), name='update-order'),
+    path('api/orderOfUser/', get_user_order, name='orderOfUser'),
+    path('api/order/en-attente/', get_pending_orders, name='pending-order-list'),
+    path('api/order/finalisee/', get_completed_orders, name='completed-orders'),
+    path('api/order/rejetee/', get_rejected_orders, name='rejected-orders'),
+    path('api/update_order_motif/<int:order_id>/', update_order_motif, name='update_order_motif'),
+
 
     #URLs pour les Pieces
     path('api/itemAll/', ItemListView.as_view(), name='item-list-all'),
@@ -71,11 +66,7 @@ urlpatterns = [
     path('api/updateCart/<int:pk>/', CartDetailView.as_view(), name='update-cart'),
 
     #URLs pour la localisation
-    path('api/locationAll/', LocationListView.as_view(), name='location-list-all'),
-    path('api/postLocation/', LocationListView.as_view(), name='location-post'),
-    path('api/location/<int:pk>/', LocationDetailView.as_view(), name='location-detail'),
-    path('api/deleteLocation/<int:pk>/', LocationDetailView.as_view(), name='delete-location'),
-    path('api/updateLocation/<int:pk>/', LocationDetailView.as_view(), name='update-location'),
+
 
     #URLs pour les catégories de pièces
     path('api/categoryPiecesAll/', CategoryPiecesListView.as_view(), name='category-pieces-list-all'),
@@ -101,7 +92,13 @@ urlpatterns = [
     #URLs de détail Commande
     path('api/detailOrderAll/', DetailOrderListView.as_view(), name='detail-order-list-all'),
     path('api/postDetailOrder/', DetailOrderListView.as_view(), name='detail-order-post'),
-    path('api/detailOrder/<int:pk>/', DetailOrderDetailView.as_view(), name='detail-order-detail'),
+    path('details_commande/<int:commande_id>/', DetailOrderListView.as_view(), name='detailorder-list'),
     path('api/deleteDetailOrder/<int:pk>/', DetailOrderDetailView.as_view(), name='delete-detail-order'),
     path('api/updateDetailOrder/<int:pk>/', DetailOrderDetailView.as_view(), name='update-detail-order'),
+
+    #URLs pour le login
+    path('api/login/', login_view, name='login'),
+
+    #URLs pour le payement
+    path('api/payment/<int:order_id>/', mark_payment_complete, name='mark_payment_complete'),
 ]
